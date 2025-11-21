@@ -1,0 +1,28 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.navbar-brand {
+  font-size: 1.5rem;
+}
+.card:hover {
+  transform: translateY(-5px);
+  transition: 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-5px);
+  transition: 0.3s ease;
+}
+
+.list-group-item.active {
+  background-color: #ffc107 !important;
+  border-color: #ffc107 !important;
+}
+#productCarousel img {
+  max-height: 400px;
+  object-fit: cover;
+}
+.card:hover {
+  transform: translateY(-5px);
+  transition: 0.3s ease;
+}
+

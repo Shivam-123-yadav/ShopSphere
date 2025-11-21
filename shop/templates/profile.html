@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+  <!-- Django Messages -->
+  {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+          <div class="d-flex align-items-center">
+            {% if message.tags == 'success' %}
+              <i class="fas fa-check-circle me-2"></i>
+            {% elif message.tags == 'error' %}
+              <i class="fas fa-exclamation-circle me-2"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fas fa-exclamation-triangle me-2"></i>
+            {% elif message.tags == 'info' %}
+              <i class="fas fa-info-circle me-2"></i>
+            {% endif %}
+            <div>{{ message }}</div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="row g-4 mt-3">
+    <!-- Profile Form -->
+    <div class="col-12 col-md-4">
+      <h4 class="mb-3">Profile</h4>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="first_name" class="form-label">First Name</label>
+          <input type="text" id="first_name" name="first_name" class="form-control" value="{{ user.first_name }}">
+        </div>
+        <div class="mb-3">
+          <label for="last_name" class="form-label">Last Name</label>
+          <input type="text" id="last_name" name="last_name" class="form-control" value="{{ user.last_name }}">
+        </div>
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}">
+        </div>
+        <button class="btn btn-primary w-100">Update Profile</button>
+      </form>
+    </div>
+
+    <!-- Order History -->
+    <div class="col-12 col-md-8">
+      <h4 class="mb-3">Order History</h4>
+      {% if orders %}
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead class="table-dark">
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Total Items</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr>
+              <td>#{{ order.id }}</td>
+              <td>{{ order.created_at|date:"d M Y H:i" }}</td>
+              <td>{% if order.is_paid %}Paid{% else %}Pending{% endif %}</td>
+              <td>{{ order.items.count }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p>No orders found.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Shop by Category -->
+    <div class="mt-5 animate__animated animate__fadeInUp">
+      <h4 class="mb-4 fw-bold text-gradient"><i class="fas fa-th-large me-2"></i>Shop by Category</h4>
+      <div class="row g-3">
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="/category/mobiles/" class="category-btn">
+            <i class="fas fa-mobile-alt fa-2x mb-2"></i><br>Mobiles
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="/category/computers/" class="category-btn">
+            <i class="fas fa-laptop fa-2x mb-2"></i><br>Computers
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="/category/tv-appliances-electronics/" class="category-btn">
+            <i class="fas fa-tv fa-2x mb-2"></i><br>TV & Electronics
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="/category/mens-fashion/" class="category-btn">
+            <i class="fas fa-male fa-2x mb-2"></i><br>Men's Fashion
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="/category/womens-fashion/" class="category-btn">
+            <i class="fas fa-female fa-2x mb-2"></i><br>Women's Fashion
+          </a>
+        </div>
+        <div class="col-6 col-md-4 col-lg-2">
+          <a href="/categories/" class="category-btn category-btn-secondary">
+            <i class="fas fa-th-list fa-2x mb-2"></i><br>See All
+          </a>
+        </div>
+      </div>
+    </div>
+
+<style>
+.text-gradient {
+  background: linear-gradient(90deg, #FFD700, #FFA500 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.category-btn {
+  display: block;
+  background: #fffbe6;
+  border: 2px solid #FFD700;
+  border-radius: 1.2rem;
+  text-align: center;
+  padding: 1.2rem 0.5rem 0.7rem;
+  font-weight: 600;
+  color: #222;
+  text-decoration: none;
+  box-shadow: 0 4px 18px #FFD70011;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
+  margin-bottom: 0.5rem;
+}
+.category-btn i {
+  color: #FFA500;
+  transition: color 0.2s;
+}
+.category-btn:hover, .category-btn:focus {
+  background: linear-gradient(90deg, #fffbe6 60%, #fff3cd 100%);
+  box-shadow: 0 8px 32px #FFD70033;
+  color: #000;
+  transform: translateY(-4px) scale(1.04);
+  text-decoration: none;
+}
+.category-btn:hover i, .category-btn:focus i {
+  color: #FFD700;
+}
+.category-btn-secondary {
+  border: 2px dashed #FFA500;
+  background: #f8f9fa;
+}
+@media (max-width: 576px) {
+  .category-btn { padding: 0.8rem 0.2rem 0.5rem; font-size: 0.98rem; }
+  .category-btn i { font-size: 1.3rem !important; }
+}
+</style>
+
+<!-- JavaScript to auto-hide messages after 3 seconds -->
+<script>
+  setTimeout(function() {
+    var alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+      var bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close(); // fades out smoothly
+    });
+  }, 3000);
+</script>
+
+{% endblock %}

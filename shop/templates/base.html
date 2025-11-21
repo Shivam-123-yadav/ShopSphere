@@ -1,0 +1,756 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-commerce</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    /* Subtle fade-in animation for main content */
+    .fade-in {
+      animation: fadeIn 0.8s cubic-bezier(0.4,0,0.2,1);
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: none; }
+    }
+    /* Scroll-to-top button */
+    #scrollTopBtn {
+      display: none;
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 9999;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      color: #222;
+      border: none;
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+      font-size: 1.5rem;
+      transition: background 0.3s, transform 0.2s;
+    }
+    #scrollTopBtn:hover {
+      background: linear-gradient(45deg, #FFA500, #FFD700);
+      transform: translateY(-4px) scale(1.08);
+    }
+    /* Navbar border and shadow */
+    .navbar {
+      border-bottom: 2px solid #FFD700;
+      box-shadow: 0 2px 12px rgba(255,215,0,0.07);
+    }
+    /* Navbar link hover effect */
+    .nav-link {
+      position: relative;
+      overflow: hidden;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, #FFD700, #FFA500);
+      transform: scaleX(0);
+      transition: transform 0.3s;
+    }
+    .nav-link:hover::after {
+      transform: scaleX(1);
+    }
+    /* Animated social icons */
+    .social-btn {
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .social-btn:hover {
+      transform: scale(1.15) rotate(-8deg);
+      box-shadow: 0 4px 16px #FFD70044;
+    }
+    /* Card-style main content */
+    .main-card {
+      background: rgba(255,255,255,0.04);
+      border-radius: 18px;
+      box-shadow: 0 6px 32px rgba(0,0,0,0.10);
+      padding: 2.5rem 1.5rem;
+      margin-bottom: 2rem;
+    }
+    /* Responsive: main-card */
+    @media (max-width: 768px) {
+      .main-card { padding: 1.2rem 0.5rem; }
+    }
+    /* Flash message icons */
+    .alert .fa-check-circle { color: #28a745; }
+    .alert .fa-exclamation-circle, .alert .fa-exclamation-triangle { color: #ffc107; }
+    .alert .fa-info-circle { color: #17a2b8; }
+    .alert .fa-times-circle { color: #dc3545; }
+    /* Advanced Header Styles */
+    .navbar {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+      padding: 12px 0;
+      transition: all 0.3s ease;
+    }
+    
+   .navbar-brand {
+    font-size: 1.8rem !important;
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+
+    margin-left: 0 !important;   /* 👈 हमेशा बिलकुल left corner */
+    text-align: left !important;
+    display: flex;
+    align-items: center;
+}
+
+    
+    .nav-link {
+      font-weight: 500;
+      border-radius: 6px;
+      margin: 0 4px;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-link.btn {
+      border-width: 2px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    
+    .nav-link.btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .search-form {
+      position: relative;
+    }
+    
+    .search-form .form-control {
+      border-radius: 50px;
+      padding-left: 20px;
+      border: 2px solid rgba(255, 215, 0, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+    
+    .search-form .form-control:focus {
+      box-shadow: 0 0 0 0.25rem rgba(255, 215, 0, 0.2);
+      border-color: #FFD700;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .search-form .btn {
+      border-radius: 0 50px 50px 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      padding: 0 20px;
+    }
+    
+    .cart-badge {
+      font-size: 0.65rem;
+      padding: 4px 6px;
+    }
+    
+    /* Advanced Footer Styles */
+    footer {
+      background: linear-gradient(to right, #1a1a1a, #2d2d2d);
+      border-top: 1px solid rgba(255, 215, 0, 0.2);
+      margin-top: auto;
+    }
+    
+    .footer-title {
+      position: relative;
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .footer-title:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+    }
+    
+    .footer-link {
+      color: #ddd;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: block;
+      margin-bottom: 10px;
+      position: relative;
+      padding-left: 15px;
+    }
+    
+    .footer-link:before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: #FFD700;
+      transition: all 0.3s;
+      opacity: 0.7;
+    }
+    
+    .footer-link:hover {
+      color: #FFD700;
+      transform: translateX(5px);
+    }
+    
+    .footer-link:hover:before {
+      opacity: 1;
+      transform: translateX(3px);
+    }
+    
+    .social-btn {
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s;
+      margin-right: 8px;
+    }
+    
+    .social-btn:hover {
+      background: #FFD700;
+      color: #000 !important;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+    }
+    
+    .newsletter-input {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 215, 0, 0.3);
+      color: #fff;
+      border-radius: 50px 0 0 50px;
+    }
+    
+    .newsletter-input:focus {
+      box-shadow: 0 0 0 0.25rem rgba(255, 215, 0, 0.2);
+      border-color: #FFD700;
+      background: rgba(255, 255, 255, 0.12);
+    }
+    
+    .newsletter-btn {
+      border-radius: 0 50px 50px 0;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      color: #000;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .newsletter-btn:hover {
+      background: linear-gradient(45deg, #FFA500, #FFD700);
+      transform: translateY(-2px);
+    }
+    
+    .contact-info i {
+      color: #FFD700;
+      width: 20px;
+      margin-right: 10px;
+    }
+    
+    /* Sticky header on scroll */
+    .navbar-sticky {
+      position: sticky;
+      top: 0;
+      z-index: 1020;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 992px) {
+      .search-form {
+        width: 60% !important;
+        margin: 15px 0;
+      }
+      
+      .navbar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      
+      .nav-item {
+        margin: 5px 0;
+      }
+    }
+    /* Modern Dark Search Input with White Placeholder */
+.search-input {
+  border-radius: 50px;
+  padding: 0.5rem 1rem;
+  border: 1px solid #495057;
+  background-color: #343a40; /* dark background */
+  color: #fff; /* text color */
+  transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+  color: #ccc; /* placeholder color white-ish */
+  opacity: 1;
+}
+
+.search-input:focus {
+  border-color: #ffc107; /* yellow focus */
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+  outline: none;
+}
+
+
+.search-suggestions {
+  max-height: 300px;
+  overflow-y: auto;
+  border-radius: 0.25rem;
+}
+
+.search-suggestions .suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+  gap: 10px;
+}
+
+.search-suggestions .suggestion-item img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.search-suggestions .suggestion-item:hover {
+  background-color: #f1f1f1;
+}
+
+
+    
+  </style>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<!-- Scroll-to-top button -->
+<button id="scrollTopBtn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-sticky">
+  <div class="container">
+    
+    <!-- Brand -->
+    <a class="navbar-brand fw-bold me-3" href="/">
+      <i class="fas fa-shopping-bag me-2"></i>MyShop
+    </a>
+
+    <!-- 🔎 Search Bar (always visible, outside collapse) -->
+    <form method="get" action="{% url 'product_list' %}" 
+          class="d-flex search-form mx-auto flex-grow-1 me-3 position-relative">
+      <input class="form-control search-input me-2" 
+             type="search" name="q" placeholder="Search products..." 
+             aria-label="Search" autocomplete="off" 
+             value="{{ search_query }}">
+      <button class="btn btn-warning text-dark fw-bold" type="submit">
+        <i class="fas fa-search"></i>
+      </button>
+      <!-- Live suggestions dropdown -->
+      <div class="search-suggestions position-absolute bg-white border shadow-sm w-100" 
+           style="z-index: 1000; display: none;"></div>
+    </form>
+
+    <!-- Mobile Toggle -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Menu -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+  <ul class="navbar-nav ms-auto align-items-center">
+    
+    {% comment %} {% if user.is_authenticated %}
+      <li class="nav-item">
+        <span class="nav-link text-warning">
+          <i class="fas fa-user-circle me-1"></i>
+          Hi, <strong>{{ user.username }}</strong>
+        </span>
+      </li> {% endcomment %}
+
+      <!-- Home -->
+      <li class="nav-item">
+        <a href="/" class="nav-link">Home</a>
+      </li>
+
+      <!-- Products -->
+      <li class="nav-item">
+        <a href="/products/" class="nav-link">Products</a>
+      </li>
+
+      <!-- Profile -->
+      <li class="nav-item">
+        <a class="nav-link btn btn-outline-warning btn-sm mx-1" href="{% url 'profile' %}">
+          <i class="fas fa-user me-1"></i>Profile
+        </a>
+      </li>
+
+      <li class="nav-item position-relative">
+      <a class="nav-link btn btn-warning btn-sm mx-1" href="{% url 'cart' %}">
+        <i class="fas fa-shopping-cart me-1"></i>Cart
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">
+          {{ request.session.cart|length|default:"0" }}
+        </span>
+      </a>
+    </li>
+
+     <li class="nav-item">
+        <a class="nav-link btn btn-outline-danger btn-sm mx-1" href="{% url 'logout' %}">
+          <i class="fas fa-sign-out-alt me-1"></i>Logout
+        </a>
+      </li>
+
+      {% if user.is_authenticated %}
+      <li class="nav-item">
+        <span class="nav-link text-warning">
+          <i class="fas fa-user-circle me-1"></i>
+          Hi, <strong>{{ user.username }}</strong>
+        </span>
+      </li>
+
+      <!-- Logout -->
+      {% comment %} <li class="nav-item">
+        <a class="nav-link btn btn-outline-danger btn-sm mx-1" href="{% url 'logout' %}">
+          <i class="fas fa-sign-out-alt me-1"></i>Logout
+        </a>
+      </li> {% endcomment %}
+
+    {% else %}
+      <!-- Login -->
+      <li class="nav-item">
+        <a class="nav-link btn btn-outline-success btn-sm mx-1" href="{% url 'login' %}">
+          <i class="fas fa-sign-in-alt me-1"></i>Login
+        </a>
+      </li>
+
+      <!-- Signup -->
+      <li class="nav-item">
+        <a class="nav-link btn btn-outline-primary btn-sm mx-1" href="{% url 'signup' %}">
+          <i class="fas fa-user-plus me-1"></i>Signup
+        </a>
+      </li>
+
+      
+    {% endif %}
+
+    <!-- Cart -->
+      {% comment %} <li class="nav-item position-relative">
+        <a class="nav-link btn btn-warning btn-sm mx-1" href="{% url 'cart' %}">
+          <i class="fas fa-shopping-cart me-1"></i>Cart
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">
+            {{ request.session.cart|length|default:"0" }}
+          </span>
+        </a>
+      </li> {% endcomment %}
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+
+<!-- Flash Messages -->
+<div class="container mt-3">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show rounded-3 shadow-sm" role="alert">
+        <div class="d-flex align-items-center">
+          {% if message.tags == 'success' %}
+            <i class="fas fa-check-circle me-2"></i>
+          {% elif message.tags == 'error' %}
+            <i class="fas fa-times-circle me-2"></i>
+          {% elif message.tags == 'warning' %}
+            <i class="fas fa-exclamation-triangle me-2"></i>
+          {% elif message.tags == 'info' %}
+            <i class="fas fa-info-circle me-2"></i>
+          {% endif %}
+          <div>{{ message }}</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+</div>
+
+
+
+  <!-- Main content -->
+  <main class="container-fluid py-4 flex-grow-1 fade-in">
+    <div class="main-card mx-auto">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+
+     <!-- Footer -->
+    <!-- Footer -->
+<footer>
+  <div class="container py-4">
+    <div class="row">
+
+      <!-- Brand & Description -->
+      <div class="col-lg-3 col-md-6 mb-4 footer-col">
+        <h5 class="fw-bold text-warning footer-title">
+          <i class="fas fa-shopping-bag me-2"></i>MyShop
+        </h5>
+        <p class="text-light">
+          Discover the latest products, amazing deals, and hassle-free shopping.
+          Experience convenience and style with MyShop.
+        </p>
+        <a href="/products/" class="btn btn-warning btn-sm mt-2">
+          <i class="fas fa-shopping-cart me-1"></i>Shop Now
+        </a>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="col-lg-3 col-md-6 mb-4 footer-col">
+        <h6 class="fw-bold text-light footer-title">Quick Links</h6>
+        <ul class="list-unstyled">
+          <li><a href="/" class="footer-link">Home</a></li>
+          <li><a href="/products/" class="footer-link">Products</a></li>
+          <li><a href="/cart/" class="footer-link">Cart</a></li>
+          <li><a href="/profile/" class="footer-link">Profile</a></li>
+          <li><a href="/about/" class="footer-link">About Us</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-lg-3 col-md-6 mb-4 footer-col">
+        <h6 class="fw-bold text-light footer-title">Contact Us</h6>
+        <div class="text-light contact-info">
+          <p class="mb-2"><i class="fas fa-map-marker-alt me-2"></i>123 Main Street, Mumbai, India</p>
+          <p class="mb-2"><i class="fas fa-envelope me-2"></i>support@myshop.com</p>
+          <p class="mb-2"><i class="fas fa-phone me-2"></i>+91 9876543210</p>
+          <p class="mb-0"><i class="fas fa-clock me-2"></i>Mon-Sat: 9AM - 7PM</p>
+        </div>
+      </div>
+
+      <!-- Newsletter & Social -->
+      <div class="col-lg-3 col-md-6 mb-4 footer-col">
+        <h6 class="fw-bold text-light footer-title">Newsletter</h6>
+        <p class="text-light small">
+          Subscribe to get updates on new products and special offers
+        </p>
+
+        <form class="d-flex mb-3 newsletter-form">
+          <input type="email" class="form-control form-control-sm newsletter-input" placeholder="Your email" required>
+          <button type="submit" class="btn newsletter-btn btn-sm bg-warning text-dark ms-2">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </form>
+
+        <h6 class="fw-bold text-light mt-4 mb-2">Follow Us</h6>
+        <div class="d-flex gap-2 social-buttons">
+          <a href="#" class="btn btn-outline-light btn-sm rounded-circle social-btn"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="btn btn-outline-light btn-sm rounded-circle social-btn"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="btn btn-outline-light btn-sm rounded-circle social-btn"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="btn btn-outline-light btn-sm rounded-circle social-btn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="copyright text-center">
+    <p class="mb-0 text-light small">© 2025 MyShop. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- Footer CSS -->
+<style>
+  footer {
+    background: linear-gradient(135deg, #2c3e50, #1a1f25);
+    color: #fff;
+    padding: 2rem 0 0;
+    margin-top: auto;
+  }
+  .footer-title {
+    border-bottom: 2px solid #ffc107;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+    display: inline-block;
+  }
+  .footer-link {
+    color: #fff;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.5rem;
+    transition: color 0.3s;
+  }
+  .footer-link:hover {
+    color: #ffc107;
+  }
+  .contact-info p {
+    margin-bottom: 0.5rem;
+  }
+  .newsletter-input {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #6c757d;
+    color: white;
+  }
+  .newsletter-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  .newsletter-btn {
+    min-width: 40px;
+  }
+  .social-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+  }
+  .social-btn:hover {
+    background-color: #ffc107;
+    border-color: #ffc107;
+    color: #000 !important;
+  }
+  .copyright {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 1rem 0;
+    margin-top: 2rem;
+  }
+
+  /* ✅ Mobile-specific adjustments */
+  @media (max-width: 768px) {
+    .footer-col {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .footer-title {
+      border-bottom: none;
+      font-size: 1.2rem;
+      display: block;
+    }
+    .footer-col ul {
+      padding: 0;
+      list-style: none;
+    }
+    .footer-col ul li {
+      margin-bottom: 0.5rem;
+    }
+    .contact-info {
+      margin: 0 auto 1rem;
+      max-width: 250px;
+    }
+    .newsletter-form {
+      flex-direction: column;
+      align-items: center;
+    }
+    .newsletter-input {
+      width: 100% !important;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+    .newsletter-btn {
+      width: 100%;
+    }
+    .social-buttons {
+      justify-content: center;
+      margin-top: 1rem;
+    }
+  }
+</style>
+
+
+    <!-- Copyright -->
+    <div class="text-center py-3 border-top border-dark">
+      <p class="mb-0 text-muted small">
+        © 2025 MyShop | Built with <i class="fas fa-heart text-danger"></i> in Django
+      </p>
+    </div>
+  </footer>
+
+
+
+
+<script>
+// Scroll-to-top button logic
+const scrollBtn = document.getElementById('scrollTopBtn');
+window.onscroll = function() {
+  if (document.body.scrollTop > 120 || document.documentElement.scrollTop > 120) {
+  scrollBtn.style.display = 'block';
+  } else {
+  scrollBtn.style.display = 'none';
+  }
+};
+scrollBtn.onclick = function() {
+  window.scrollTo({top: 0, behavior: 'smooth'});
+};
+
+// Search suggestions logic
+document.addEventListener("DOMContentLoaded", function(){
+  const searchInput = document.querySelector('.search-input');
+  const suggestionsBox = document.querySelector('.search-suggestions');
+  if (!searchInput || !suggestionsBox) return;
+  searchInput.addEventListener('input', function(){
+    const query = this.value.trim();
+    if(query.length === 0){
+      suggestionsBox.style.display = 'none';
+      return;
+    }
+    fetch(`/api/search/?q=${query}`)
+    .then(res => res.json())
+    .then(data => {
+      const results = data.results;
+      if(results.length > 0){
+        suggestionsBox.innerHTML = results.map(p => 
+          `<div class="suggestion-item" data-slug="${p.slug}">
+            <img src="${p.image || 'https://via.placeholder.com/40'}" alt="${p.name}">
+            <div>
+              <strong>${p.name}</strong><br>
+              $${p.price}
+            </div>
+          </div>`
+        ).join('');
+        suggestionsBox.style.display = 'block';
+      } else {
+        suggestionsBox.innerHTML = '<div class="suggestion-item">No products found</div>';
+        suggestionsBox.style.display = 'block';
+      }
+    });
+  });
+  suggestionsBox.addEventListener('click', function(e){
+    const item = e.target.closest('.suggestion-item');
+    if(item && item.dataset.slug){
+      window.location.href = `/product/${item.dataset.slug}/`;
+    }
+  });
+  document.addEventListener('click', function(e){
+    if(!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)){
+      suggestionsBox.style.display = 'none';
+    }
+  });
+});
+</script>
+
+
+
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JS -->
+  <script src="{% static 'js/script.js' %}"></script>
+
+
+
+</body>
+</html>

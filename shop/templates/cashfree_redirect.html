@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting to Cashfree...</title>
+</head>
+<body>
+    <h3>Redirecting to payment...</h3>
+    <form id="paymentForm" action="https://sandbox.cashfree.com/api/v2/cftoken/order" method="POST">
+        <input type="hidden" name="orderToken" value="{{ cftoken }}">
+    </form>
+    <script>
+        document.getElementById("paymentForm").submit();
+    </script>
+</body>
+</html>

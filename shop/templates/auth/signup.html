@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center min-vh-100 align-items-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-lg border-0 rounded-4">
+      <div class="card-body p-5">
+        <h3 class="card-title text-center mb-4 fw-bold">Create Account</h3>
+        <form method="POST" novalidate>
+          {% csrf_token %}
+
+          <!-- Username -->
+          <div class="form-floating mb-3">
+            <input type="text" name="username" class="form-control" id="floatingUsername" placeholder="Username">
+            <label for="floatingUsername">Username</label>
+          </div>
+
+          <!-- Email -->
+          <div class="form-floating mb-3">
+            <input type="email" name="email" class="form-control" id="floatingEmail" placeholder="Email">
+            <label for="floatingEmail">Email</label>
+          </div>
+
+          <!-- Phone -->
+          <div class="form-floating mb-3">
+            <input type="tel" name="phone" class="form-control" id="floatingPhone" placeholder="Phone">
+            <label for="floatingPhone">Phone</label>
+          </div>
+
+          <!-- Password -->
+          <div class="form-floating mb-3">
+            <input type="password" name="password1" class="form-control" id="floatingPassword1" placeholder="Password">
+            <label for="floatingPassword1">Password</label>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-floating mb-3">
+            <input type="password" name="password2" class="form-control" id="floatingPassword2" placeholder="Confirm Password">
+            <label for="floatingPassword2">Confirm Password</label>
+          </div>
+
+          <button type="submit" class="btn btn-warning w-100 py-2 fw-bold shadow-sm">Sign Up</button>
+        </form>
+        <p class="text-center mt-4">
+          Already have an account? <a href="{% url 'login' %}" class="text-dark fw-semibold">Login</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

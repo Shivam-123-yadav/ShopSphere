@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+<div class="row g-4 align-items-center animate__animated animate__fadeIn">
+  <!-- Product Images -->
+  <div class="col-md-6 mb-3 mb-md-0">
+    <div id="productCarousel" class="carousel slide shadow-lg rounded-4 overflow-hidden" data-bs-ride="carousel" style="background:#fff;">
+      <div class="carousel-inner">
+        {% for image in product.images.all %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <img src="{{ image.image.url }}" class="d-block w-100" alt="{{ image.alt_text }}" style="border-radius:1.2rem; max-height:400px; object-fit:cover;">
+        </div>
+        {% empty %}
+        <div class="carousel-item active">
+          <img src="https://via.placeholder.com/500x400" class="d-block w-100" alt="{{ product.name }}" style="border-radius:1.2rem; max-height:400px; object-fit:cover;">
+        </div>
+        {% endfor %}
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Product Info -->
+  <div class="col-md-6">
+    <div class="p-4 rounded-4 shadow-sm bg-white bg-opacity-75 border border-2 border-warning-subtle animate__animated animate__fadeInRight">
+      <h2 class="fw-bold mb-2 text-gradient">{{ product.name }}</h2>
+      <p class="text-muted mb-1">Category: <span class="fw-semibold">{{ product.category.name }}</span></p>
+      <p class="mb-3">{{ product.description }}</p>
+      <div class="mb-3">
+        <span class="badge bg-warning text-dark fs-5 shadow-sm">₹{{ product.price }}</span>
+        {% if product.discount_price %}
+          <span class="text-decoration-line-through text-muted ms-2">₹{{ product.discount_price }}</span>
+        {% endif %}
+      </div>
+      <p class="mb-3">Stock: <span class="fw-semibold">{{ product.stock }}</span></p>
+      <div class="d-flex gap-2">
+        <a href="{% url 'cart_add' product.id %}" class="btn btn-warning btn-lg rounded-pill fw-bold shadow-sm"><i class="fas fa-cart-plus me-1"></i> Add to Cart</a>
+        <a href="{% url 'buy_now' product.id %}" class="btn btn-success btn-lg rounded-pill fw-bold shadow-sm"><i class="fas fa-bolt me-1"></i> Buy Now</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Related Products -->
+<div class="mt-5">
+  <h4 class="mb-4 fw-bold text-gradient">Related Products</h4>
+  <div class="row row-cols-2 row-cols-md-4 g-4 animate__animated animate__fadeInUp">
+    {% for rp in related_products %}
+    <div class="col">
+      <div class="card h-100 border-0 shadow-lg product-card position-relative overflow-hidden animate__animated animate__zoomIn" style="transition:transform 0.2s;">
+        {% if rp.images.first %}
+          <img src="{{ rp.images.first.image.url }}" class="card-img-top product-img" alt="{{ rp.name }}" style="height:160px; object-fit:cover; border-radius:1.2rem 1.2rem 0 0;">
+        {% else %}
+          <img src="https://via.placeholder.com/200x150" class="card-img-top product-img" alt="{{ rp.name }}" style="height:160px; object-fit:cover; border-radius:1.2rem 1.2rem 0 0;">
+        {% endif %}
+        <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 shadow-sm">₹{{ rp.price }}</span>
+        <div class="product-img-overlay position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background:rgba(0,0,0,0.18); opacity:0; transition:opacity 0.3s;">
+          <a href="{% url 'product_detail' rp.slug %}" class="btn btn-light btn-sm fw-bold shadow">View <i class="fas fa-arrow-right ms-1"></i></a>
+        </div>
+        <div class="card-body">
+          <h6 class="card-title fw-bold text-dark mb-2" style="min-height:2.2em;">{{ rp.name }}</h6>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p>No related products found.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+.text-gradient {
+  background: linear-gradient(90deg, #FFD700, #FFA500 80%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.product-card {
+  border-radius: 1.2rem;
+  box-shadow: 0 6px 32px rgba(0,0,0,0.10);
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.product-card:hover {
+  transform: translateY(-7px) scale(1.03);
+  box-shadow: 0 12px 36px #FFD70033;
+}
+.product-img-overlay {
+  opacity: 0;
+  pointer-events: none;
+}
+.product-card:hover .product-img-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+.product-img {
+  transition: filter 0.3s;
+}
+.product-card:hover .product-img {
+  filter: brightness(0.85) blur(1px);
+}
+@media (max-width: 576px) {
+  .product-img { height: 110px !important; }
+}
+</style>
+
+{% endblock %}

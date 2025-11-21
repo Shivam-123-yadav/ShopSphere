@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-light py-5">
+  <div class="container text-center">
+    <h1 class="display-4 fw-bold">About MyShop</h1>
+    <p class="lead">Providing quality products at unbeatable prices since 2025.</p>
+    <a href="/products/" class="btn btn-warning btn-lg mt-3">Shop Now</a>
+  </div>
+</section>
+
+<!-- Mission & Vision -->
+<section class="py-5">
+  <div class="container">
+    <div class="row g-4 text-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 border-0">
+          <div class="card-body">
+            <i class="fas fa-bullseye fa-2x mb-3 text-warning"></i>
+            <h5 class="card-title">Our Mission</h5>
+            <p class="card-text">To deliver the best online shopping experience with top-quality products and exceptional service.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 border-0">
+          <div class="card-body">
+            <i class="fas fa-eye fa-2x mb-3 text-warning"></i>
+            <h5 class="card-title">Our Vision</h5>
+            <p class="card-text">Become the most trusted online marketplace where customers find everything they need, easily and affordably.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm h-100 border-0">
+          <div class="card-body">
+            <i class="fas fa-heart fa-2x mb-3 text-warning"></i>
+            <h5 class="card-title">Our Values</h5>
+            <p class="card-text">Customer satisfaction, transparency, quality, and continuous improvement in everything we do.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h2 class="text-center mb-5">Meet Our Team</h2>
+    <div class="row g-4 justify-content-center">
+      <div class="col-6 col-md-3 text-center">
+        <img src="{% static 'images/shivam.jpeg' %}" class="rounded-circle mb-3" style="width:150px;height:150px;object-fit:cover;" alt="Team Member">
+        <h5>Shivam</h5>
+        <p class="text-muted">Founder & CEO</p>
+      </div>
+      <div class="col-6 col-md-3 text-center">
+        <img src="{% static 'images/shivam.jpeg' %}" class="rounded-circle mb-3" style="width:150px;height:150px;object-fit:cover;" alt="Team Member">
+        <h5>Shivam Yadav</h5>
+        <p class="text-muted">Head of Operations</p>
+      </div>
+      <div class="col-6 col-md-3 text-center">
+        <img src="{% static 'images/shivam.jpeg' %}" class="rounded-circle mb-3" style="width:150px;height:150px;object-fit:cover;" alt="Team Member">
+        <h5>Mr. Shivam Yadav</h5>
+        <p class="text-muted">Lead Developer</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 text-center">
+  <div class="container">
+    <h3 class="mb-3">Ready to explore our products?</h3>
+    <a href="/products/" class="btn btn-warning btn-lg">Start Shopping</a>
+  </div>
+</section>
+{% endblock %}

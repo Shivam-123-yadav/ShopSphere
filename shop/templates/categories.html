@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4 animate__animated animate__fadeInUp">
+        <h3 class="mb-4 fw-bold text-gradient"><i class="fas fa-th-large me-2"></i>All Categories</h3>
+        {% if categories %}
+                <div class="row g-3">
+                        {% for category in categories %}
+                        <div class="col-6 col-md-4 col-lg-3">
+                                <a href="/category/{{ category.slug }}/" class="category-btn">
+                                    <i class="fas fa-tag fa-lg mb-2"></i><br>{{ category.name }}
+                                </a>
+                        </div>
+                        {% endfor %}
+                </div>
+        {% else %}
+                <p>No categories available.</p>
+        {% endif %}
+</div>
+
+<style>
+.text-gradient {
+    background: linear-gradient(90deg, #FFD700, #FFA500 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.category-btn {
+    display: block;
+    background: #fffbe6;
+    border: 2px solid #FFD700;
+    border-radius: 1.2rem;
+    text-align: center;
+    padding: 1.2rem 0.5rem 0.7rem;
+    font-weight: 600;
+    color: #222;
+    text-decoration: none;
+    box-shadow: 0 4px 18px #FFD70011;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
+    margin-bottom: 0.5rem;
+}
+.category-btn i {
+    color: #FFA500;
+    transition: color 0.2s;
+}
+.category-btn:hover, .category-btn:focus {
+    background: linear-gradient(90deg, #fffbe6 60%, #fff3cd 100%);
+    box-shadow: 0 8px 32px #FFD70033;
+    color: #000;
+    transform: translateY(-4px) scale(1.04);
+    text-decoration: none;
+}
+.category-btn:hover i, .category-btn:focus i {
+    color: #FFD700;
+}
+@media (max-width: 576px) {
+    .category-btn { padding: 0.8rem 0.2rem 0.5rem; font-size: 0.98rem; }
+    .category-btn i { font-size: 1.3rem !important; }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center min-vh-100 align-items-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card shadow-lg border-0 rounded-4">
+      <div class="card-body p-5">
+        <h3 class="card-title text-center mb-4 fw-bold">Login</h3>
+        <form method="POST" novalidate>
+          {% csrf_token %}
+
+          <!-- Username/Email -->
+          <div class="form-floating mb-3">
+            <input type="text" name="username" class="form-control" id="floatingUsername" placeholder="Username or Email">
+            <label for="floatingUsername">Username or Email</label>
+          </div>
+
+          <!-- Password -->
+          <div class="form-floating mb-3">
+            <input type="password" name="password" class="form-control" id="floatingPassword" placeholder="Password">
+            <label for="floatingPassword">Password</label>
+          </div>
+
+          <button type="submit" class="btn btn-dark w-100 py-2 fw-bold shadow-sm">Login</button>
+        </form>
+        <p class="text-center mt-4">
+          Don’t have an account? <a href="{% url 'signup' %}" class="text-warning fw-semibold">Sign up</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
