@@ -169,107 +169,249 @@ def checkout_view(request):
 
 
 
-# from django.shortcuts import render, redirect
-# from django.contrib.auth.decorators import login_required
-# from django.conf import settings
-# from .forms import CheckoutForm
-# from .cart import Cart
-# from .models import Order, OrderItem, Payment
-# import requests, json
-# from django.views.decorators.csrf import csrf_exempt
+# Cashfree Payment Integration
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from .forms import CheckoutForm
+from .cart import Cart
+from .models import Order, OrderItem, Payment
+import requests, json
+from django.views.decorators.csrf import csrf_exempt
+import hashlib
+import hmac
 
-# @login_required
-# def checkout_view(request):
-#     cart = Cart(request)
-#     if not cart.items():
-#         return redirect("product_list")
+@login_required
+def checkout_view(request):
+    cart = Cart(request)
+    if not cart.items():
+        messages.warning(request, "Your cart is empty!")
+        return redirect("product_list")
 
-#     if request.method == "POST":
-#         form = CheckoutForm(request.POST)
-#         if form.is_valid():
-#             order = form.save(commit=False)
-#             order.user = request.user
-#             order.save()
+    if request.method == "POST":
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.user = request.user
+            order.save()
 
-#             total_amount = cart.total()
+            total_amount = cart.total()
 
-#             if total_amount <= 0:
-#                 return render(request, "payment_error.html", {"error": "Cart is empty or invalid amount."})
+            if total_amount <= 0:
+                messages.error(request, "Cart is empty or invalid amount.")
+                return redirect("cart")
 
-#             for item in cart.items():
-#                 OrderItem.objects.create(
-#                     order=order,
-#                     product=item["product"],
-#                     quantity=item["quantity"],
-#                     price=item["product"].price
-#                 )
+            # Create order items
+            for item in cart.items():
+                OrderItem.objects.create(
+                    order=order,
+                    product=item["product"],
+                    quantity=item["quantity"],
+                    price=item["product"].price
+                )
 
-#             payment = Payment.objects.create(order=order, amount=total_amount, status="INITIATED")
+            # Create payment record
+            payment = Payment.objects.create(order=order, amount=total_amount, status="INITIATED")
+            cart.clear()
 
-#             # Cashfree payload
-#             payload = {
-#                 "orderId": str(order.id),
-#                 "orderAmount": "{0:.2f}".format(total_amount),
-#                 "orderCurrency": "INR",
-#                 "customerName": order.full_name,
-#                 "customerEmail": order.email,
-#                 "customerPhone": request.user.phone or "9999999999",
-#                 "returnUrl": request.build_absolute_uri("https://www.boseservicecenter.co.in//cashfree/payment-success/"),
-#             }
+            # Redirect to payment page
+            return redirect("cashfree_payment", order_id=order.id)
+    else:
+        form = CheckoutForm()
 
-#             headers = {
-#                 "x-client-id": settings.CASHFREE_APP_ID,
-#                 "x-client-secret": settings.CASHFREE_SECRET_KEY,
-#                 "x-api-version": "2022-09-01",
-#                 "Content-Type": "application/json"
-#             }
-
-#             response = requests.post(settings.CASHFREE_API_URL, headers=headers, data=json.dumps(payload))
-#             data = response.json()
-#             payment.cftoken = data.get("cftoken")
-#             payment.save()
-
-#             # Redirect via template using JS
-#             return render(request, "cashfree_redirect.html", {"order": order, "cftoken": payment.cftoken})
-
-#     else:
-#         form = CheckoutForm()
-
-#     return render(request, "checkout.html", {"form": form, "cart_items": cart.items(), "total": cart.total()})
+    return render(request, "checkout.html", {"form": form, "cart_items": cart.items(), "total": cart.total()})
 
 
+@login_required
+def cashfree_payment(request, order_id):
+    """
+    Generates Cashfree cftoken and redirects to checkout page
+    """
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+    except Order.DoesNotExist:
+        messages.error(request, "Order not found.")
+        return redirect("checkout")
 
-# @csrf_exempt
-# def cashfree_payment_success(request):
-#     order_id = request.GET.get("orderId")
-#     tx_status = request.GET.get("txStatus")
-#     reference_id = request.GET.get("referenceId")
+    try:
+        payment = order.payment
+    except Payment.DoesNotExist:
+        messages.error(request, "Payment record not found.")
+        return redirect("checkout")
 
-#     if not order_id:
-#         return render(request, "payment_error.html", {"error": "Order ID missing in callback."})
+    # Generate cftoken from Cashfree API
+    try:
+        order_amount = float(payment.amount)
+        payload = {
+            "orderId": str(order.id),
+            "orderAmount": "{0:.2f}".format(order_amount),
+            "orderCurrency": "INR"
+        }
+        
+        headers = {
+            "Content-Type": "application/json"
+        }
+        
+        # Use Basic Auth with app_id:secret_key
+        auth = (settings.CASHFREE_APP_ID, settings.CASHFREE_SECRET_KEY)
+        
+        response = requests.post(
+            settings.CASHFREE_API_URL,
+            json=payload,
+            headers=headers,
+            auth=auth,
+            timeout=10
+        )
+        
+        print(f"Cashfree API Response: {response.status_code} - {response.text}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('status') == 'OK' and 'cftoken' in data:
+                cftoken = data['cftoken']
+                # Save token to Payment record
+                payment.cftoken = cftoken
+                payment.save()
+                
+                print(f"Token generated successfully: {cftoken[:20]}...")
+                
+                # Redirect to checkout page with token
+                return redirect('cashfree_checkout', order_id=order.id)
+            else:
+                error_msg = data.get('message', 'Failed to generate token')
+                print(f"Cashfree error: {error_msg}")
+                messages.error(request, f"Payment Error: {error_msg}")
+                return render(request, "payment_error.html", {"error": error_msg})
+        else:
+            error_msg = f"API Error: {response.status_code}"
+            print(f"Cashfree API Error: {response.text}")
+            messages.error(request, error_msg)
+            return render(request, "payment_error.html", {"error": error_msg})
+            
+    except requests.exceptions.Timeout:
+        error_msg = "Request timeout. Please try again."
+        print(f"Cashfree timeout: {error_msg}")
+        messages.error(request, error_msg)
+        return render(request, "payment_error.html", {"error": error_msg})
+    except requests.exceptions.RequestException as e:
+        error_msg = f"Connection Error: {str(e)}"
+        print(f"Cashfree request error: {error_msg}")
+        messages.error(request, error_msg)
+        return render(request, "payment_error.html", {"error": error_msg})
+    except Exception as e:
+        error_msg = f"Unexpected error: {str(e)}"
+        print(f"Cashfree error: {error_msg}")
+        messages.error(request, error_msg)
+        return redirect("checkout")
 
-#     try:
-#         order = Order.objects.get(id=order_id)
-#         payment = order.payment
-#     except Order.DoesNotExist:
-#         return render(request, "payment_error.html", {"error": "Order not found."})
-#     except Payment.DoesNotExist:
-#         return render(request, "payment_error.html", {"error": "Payment record not found."})
 
-#     if tx_status == "SUCCESS":
-#         order.is_paid = True
-#         order.save()
-#         payment.payment_id = reference_id
-#         payment.status = "SUCCESS"
-#         payment.save()
-#         # Clear cart
-#         cart = Cart(request)
-#         cart.clear()
-#         return render(request, "checkout_success.html", {"order": order})
-#     else:
-#         payment.status = "FAILED"
-#         payment.save()
-#         return render(request, "payment_failed.html", {"order": order})
+@login_required
+def cashfree_checkout(request, order_id):
+    """
+    Redirects user to Cashfree checkout with proper token
+    """
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        payment = order.payment
+    except Order.DoesNotExist:
+        return render(request, "payment_error.html", {"error": "Order not found."})
+    except Payment.DoesNotExist:
+        return render(request, "payment_error.html", {"error": "Payment record not found."})
+
+    if not payment.cftoken:
+        return render(request, "payment_error.html", {"error": "Payment token not found."})
+
+    # Render HTML that auto-submits to Cashfree
+    context = {
+        "order_id": order.id,
+        "order_amount": "{0:.2f}".format(float(payment.amount)),
+        "cashfree_app_id": settings.CASHFREE_APP_ID,
+        "customer_name": order.full_name,
+        "customer_email": order.email,
+        "customer_phone": getattr(request.user, 'phone', '9999999999') or '9999999999',
+        "cftoken": payment.cftoken,
+    }
+    return render(request, "cashfree_checkout.html", context)
+
+
+@csrf_exempt
+def cashfree_payment_success(request):
+    """
+    Handles payment success callback from Cashfree
+    """
+    order_id = request.POST.get("orderId")
+    tx_status = request.POST.get("txStatus")
+    reference_id = request.POST.get("referenceId")
+    signature = request.POST.get("signature")
+
+    if not order_id:
+        return render(request, "payment_error.html", {"error": "Order ID missing in callback."})
+
+    try:
+        order = Order.objects.get(id=order_id)
+        payment = order.payment
+    except Order.DoesNotExist:
+        return render(request, "payment_error.html", {"error": "Order not found."})
+    except Payment.DoesNotExist:
+        return render(request, "payment_error.html", {"error": "Payment record not found."})
+
+    # Verify signature for security
+    message = f"{order_id}{float(payment.amount)}{tx_status}"
+    computed_signature = hashlib.sha256(
+        (message + settings.CASHFREE_SECRET_KEY).encode()
+    ).hexdigest()
+
+    if signature != computed_signature:
+        messages.error(request, "Payment verification failed. Invalid signature.")
+        return render(request, "payment_failed.html", {"order": order})
+
+    if tx_status == "SUCCESS":
+        order.is_paid = True
+        order.save()
+        payment.payment_id = reference_id
+        payment.status = "SUCCESS"
+        payment.save()
+        
+        messages.success(request, f"✅ Payment Successful! Order ID: #{order.id}")
+        return render(request, "checkout_success.html", {"order": order})
+    else:
+        payment.status = "FAILED"
+        payment.save()
+        messages.error(request, "Payment failed. Please try again.")
+        return render(request, "payment_failed.html", {"order": order})
+
+
+@csrf_exempt
+def cashfree_webhook(request):
+    """
+    Webhook endpoint for Cashfree to notify about payment status
+    """
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            order_id = data.get("orderId")
+            tx_status = data.get("txStatus")
+            reference_id = data.get("referenceId")
+            
+            order = Order.objects.get(id=order_id)
+            payment = order.payment
+            
+            if tx_status == "SUCCESS":
+                order.is_paid = True
+                order.save()
+                payment.payment_id = reference_id
+                payment.status = "SUCCESS"
+            else:
+                payment.status = tx_status
+            
+            payment.save()
+            return redirect("checkout_success", order_id=order.id)
+        except Exception as e:
+            print(f"Webhook error: {str(e)}")
+            return render(request, "payment_error.html", {"error": str(e)})
+    
+    return render(request, "payment_error.html", {"error": "Invalid webhook request"})
+
 
 
 
