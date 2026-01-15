@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-5">
+          <!-- Payment Header -->
+          <div class="text-center mb-4">
+            <i class="fas fa-credit-card text-warning" style="font-size: 3rem;"></i>
+            <h2 class="mt-3 text-dark">Complete Payment</h2>
+            <p class="text-muted">Secure payment powered by Cashfree</p>
+          </div>
+
+          <!-- Order Details -->
+          <div class="alert alert-light border rounded-3 mb-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Order ID:</span>
+              <strong>#{{ order.id }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Customer:</span>
+              <strong>{{ customer_name }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Email:</span>
+              <strong>{{ customer_email }}</strong>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Total Amount:</span>
+              <strong class="text-success" style="font-size: 1.3rem;">₹{{ order_amount }}</strong>
+            </div>
+          </div>
+
+          <!-- Sandbox Mode Notice -->
+          <div class="alert alert-info alert-dismissible fade show rounded-3" role="alert">
+            <i class="fas fa-vial me-2"></i>
+            <strong>Sandbox Mode</strong> - Use test card for testing
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+
+          <!-- Payment Form -->
+          {% if cftoken %}
+          <form id="paymentForm" method="POST" action="https://test.cashfree.com/checkout/post/">
+            <input type="hidden" name="appId" value="{{ cashfree_app_id }}">
+            <input type="hidden" name="orderId" value="{{ order_id }}">
+            <input type="hidden" name="orderAmount" value="{{ order_amount }}">
+            <input type="hidden" name="orderCurrency" value="INR">
+            <input type="hidden" name="customerName" value="{{ customer_name }}">
+            <input type="hidden" name="customerEmail" value="{{ customer_email }}">
+            <input type="hidden" name="customerPhone" value="{{ customer_phone }}">
+            <input type="hidden" name="orderNote" value="Payment for Order #{{ order_id }}">
+            <input type="hidden" name="cftoken" value="{{ cftoken }}">
+          </form>
+
+          <!-- Pay Now Button -->
+          <button class="btn btn-warning btn-lg w-100 fw-bold rounded-3 mb-3" id="payBtn">
+            <i class="fas fa-lock me-2"></i>Pay Now - ₹{{ order_amount }}
+          </button>
+
+          <script>
+            document.getElementById('payBtn').addEventListener('click', function() {
+              document.getElementById('paymentForm').submit();
+            });
+          </script>
+          {% else %}
+          <!-- Test Mode Payment (when token not available) -->
+          <div class="alert alert-warning rounded-3 mb-3">
+            <strong>Test Mode:</strong> Click below to simulate payment completion
+          </div>
+          <form method="POST" action="{% url 'cashfree_payment_success' %}" class="mb-3">
+            {% csrf_token %}
+            <input type="hidden" name="orderId" value="{{ order_id }}">
+            <input type="hidden" name="txStatus" value="SUCCESS">
+            <input type="hidden" name="referenceId" value="TEST-{{ order_id }}-123456">
+            <button type="submit" class="btn btn-warning btn-lg w-100 fw-bold rounded-3">
+              <i class="fas fa-check me-2"></i>Test Payment (Sandbox)
+            </button>
+          </form>
+          {% endif %}
+
+          <!-- Security Info -->
+          <div class="text-center mt-4 pt-3 border-top">
+            <p class="text-muted small mb-2">
+              <i class="fas fa-shield-alt text-success me-1"></i>Secure & Encrypted
+            </p>
+            <p class="text-muted small">
+              Your payment is processed securely through Cashfree Payment Gateway
+            </p>
+          </div>
+
+          <!-- Cancel Button -->
+          <a href="{% url 'cart' %}" class="btn btn-outline-secondary w-100 mt-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to Cart
+          </a>
+        </div>
+      </div>
+
+      <!-- Trust Badges -->
+      <div class="text-center mt-4">
+        <small class="text-muted">
+          <i class="fas fa-lock me-1"></i>SSL Encrypted
+          <span class="mx-2">•</span>
+          <i class="fas fa-check-circle me-1"></i>Trusted Payment Gateway
+          <span class="mx-2">•</span>
+          <i class="fas fa-mobile-alt me-1"></i>Mobile Safe
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .card {
+    border-radius: 20px;
+    overflow: hidden;
+  }
+  
+  .btn-warning {
+    background: linear-gradient(45deg, #FFD700, #FFA500);
+    border: none;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-warning:hover {
+    background: linear-gradient(45deg, #FFA500, #FFD700);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+  }
+  
+  .alert {
+    background: #f8f9fa;
+  }
+</style>
+
+{% endblock %}

@@ -1,11 +1,62 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Payment Error</title>
-</head>
-<body>
-    <h1>Payment Error</h1>
-    <p>{{ error }}</p>
-    <a href="{% url 'checkout' %}">Back to Checkout</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-5 text-center">
+          <!-- Error Icon -->
+          <div class="mb-4">
+            <i class="fas fa-times-circle text-danger" style="font-size: 4rem;"></i>
+          </div>
+
+          <h2 class="text-danger mb-3">Payment Error</h2>
+          
+          <!-- Error Message -->
+          <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Error:</strong> {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+
+          <!-- Order Details (if available) -->
+          {% if order %}
+          <div class="alert alert-light border rounded-3 mb-4">
+            <p class="mb-0"><strong>Order ID:</strong> #{{ order.id }}</p>
+            <p class="mb-0"><strong>Status:</strong> <span class="badge bg-warning">Pending Payment</span></p>
+          </div>
+          {% endif %}
+
+          <!-- Action Buttons -->
+          <div class="d-grid gap-2">
+            <a href="{% url 'checkout' %}" class="btn btn-warning btn-lg fw-bold rounded-3">
+              <i class="fas fa-redo me-2"></i>Try Again
+            </a>
+            <a href="{% url 'cart' %}" class="btn btn-outline-secondary btn-lg rounded-3">
+              <i class="fas fa-shopping-cart me-2"></i>Back to Cart
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-primary btn-lg rounded-3">
+              <i class="fas fa-home me-2"></i>Back to Home
+            </a>
+          </div>
+
+          <!-- Help Text -->
+          <div class="mt-4 pt-4 border-top">
+            <p class="text-muted small mb-2">Need Help?</p>
+            <p class="text-muted small">
+              <i class="fas fa-envelope me-1"></i>Contact us at 
+              <strong>support@myshop.com</strong>
+            </p>
+            <p class="text-muted small">
+              <i class="fas fa-phone me-1"></i>Call us at 
+              <strong>+91 9876543210</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

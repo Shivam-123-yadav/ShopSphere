@@ -1,11 +1,70 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Payment Failed</title>
-</head>
-<body>
-    <h1>Payment Failed</h1>
-    <p>Your payment could not be processed.</p>
-    <a href="{% url 'checkout' %}">Try Again</a>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-lg border-0 rounded-3">
+        <div class="card-body p-5 text-center">
+          <!-- Failed Icon -->
+          <div class="mb-4">
+            <i class="fas fa-exclamation-circle text-warning" style="font-size: 4rem;"></i>
+          </div>
+
+          <h2 class="text-warning mb-3">Payment Failed</h2>
+          <p class="text-muted mb-4">Your payment could not be processed. Please try again.</p>
+          
+          <!-- Order Details -->
+          {% if order %}
+          <div class="alert alert-light border rounded-3 mb-4">
+            <p class="mb-0"><strong>Order ID:</strong> #{{ order.id }}</p>
+            <p class="mb-0"><strong>Amount:</strong> ₹{{ order.total_amount }}</p>
+            <p class="mb-0"><strong>Status:</strong> <span class="badge bg-danger">Payment Failed</span></p>
+          </div>
+          {% endif %}
+
+          <!-- Possible Reasons -->
+          <div class="alert alert-info alert-dismissible fade show rounded-3" role="alert">
+            <h6 class="alert-heading">
+              <i class="fas fa-info-circle me-2"></i>Possible Reasons
+            </h6>
+            <ul class="mb-0 small text-start">
+              <li>Insufficient balance in your account</li>
+              <li>Payment gateway timeout</li>
+              <li>Incorrect payment details</li>
+              <li>Transaction cancelled by user</li>
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="d-grid gap-2">
+            <a href="{% url 'checkout' %}" class="btn btn-warning btn-lg fw-bold rounded-3">
+              <i class="fas fa-redo me-2"></i>Retry Payment
+            </a>
+            <a href="{% url 'cart' %}" class="btn btn-outline-secondary btn-lg rounded-3">
+              <i class="fas fa-shopping-cart me-2"></i>Back to Cart
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-primary btn-lg rounded-3">
+              <i class="fas fa-home me-2"></i>Back to Home
+            </a>
+          </div>
+
+          <!-- Help Text -->
+          <div class="mt-4 pt-4 border-top">
+            <p class="text-muted small mb-2">Still having issues?</p>
+            <p class="text-muted small">
+              <i class="fas fa-envelope me-1"></i>
+              <a href="mailto:support@myshop.com" class="text-decoration-none">support@myshop.com</a>
+            </p>
+            <p class="text-muted small">
+              <i class="fas fa-phone me-1"></i>+91 9876543210
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
