@@ -90,39 +90,41 @@
     .alert .fa-exclamation-circle, .alert .fa-exclamation-triangle { color: #ffc107; }
     .alert .fa-info-circle { color: #17a2b8; }
     .alert .fa-times-circle { color: #dc3545; }
-    /* Advanced Header Styles */
     .navbar {
       background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
-      padding: 12px 0;
+      padding: 8px 0;
       transition: all 0.3s ease;
     }
     
-   .navbar-brand {
-    font-size: 1.8rem !important;
-    background: linear-gradient(45deg, #FFD700, #FFA500);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: 0.5px;
-
-    margin-left: 0 !important;   /* 👈 हमेशा बिलकुल left corner */
-    text-align: left !important;
-    display: flex;
-    align-items: center;
-}
+    .navbar-brand {
+      font-size: 1.5rem !important;
+      background: linear-gradient(45deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+      margin-left: 0 !important;
+      text-align: left !important;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
 
     
     .nav-link {
       font-weight: 500;
       border-radius: 6px;
-      margin: 0 4px;
+      margin: 2px 2px;
       transition: all 0.3s ease;
+      font-size: 0.95rem;
     }
     
     .nav-link.btn {
       border-width: 2px;
       font-weight: 600;
       transition: all 0.2s;
+      padding: 0.35rem 0.6rem !important;
+      font-size: 0.85rem;
     }
     
     .nav-link.btn:hover {
@@ -132,6 +134,7 @@
     
     .search-form {
       position: relative;
+      min-width: 200px;
     }
     
     .search-form .form-control {
@@ -140,6 +143,7 @@
       border: 2px solid rgba(255, 215, 0, 0.3);
       background: rgba(255, 255, 255, 0.08);
       color: #fff;
+      font-size: 0.9rem;
     }
     
     .search-form .form-control:focus {
@@ -154,12 +158,13 @@
       right: 0;
       top: 0;
       height: 100%;
-      padding: 0 20px;
+      padding: 0 15px;
+      font-size: 0.9rem;
     }
     
     .cart-badge {
-      font-size: 0.65rem;
-      padding: 4px 6px;
+      font-size: 0.6rem;
+      padding: 3px 5px;
     }
     
     /* Advanced Footer Styles */
@@ -275,18 +280,40 @@
     /* Responsive adjustments */
     @media (max-width: 992px) {
       .search-form {
-        width: 60% !important;
-        margin: 15px 0;
+        width: 100% !important;
+        margin: 10px 0;
       }
       
       .navbar-nav {
-        flex-direction: row;
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-direction: column;
+        gap: 0.5rem;
       }
       
       .nav-item {
-        margin: 5px 0;
+        margin: 0;
+      }
+      
+      .navbar-brand {
+        font-size: 1.3rem !important;
+        margin-bottom: 0.5rem;
+      }
+      
+      .search-form .form-control {
+        width: 100%;
+        font-size: 0.85rem;
+      }
+      
+      .nav-link, .nav-link.btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 0.8rem !important;
+        margin: 2px 0 !important;
+        width: 100%;
+        text-align: left;
+      }
+      
+      .navbar-collapse {
+        max-height: 70vh;
+        overflow-y: auto;
       }
     }
     /* Modern Dark Search Input with White Placeholder */
@@ -632,20 +659,36 @@
   /* ✅ Mobile-specific adjustments */
   @media (max-width: 768px) {
     .footer-col {
-      margin-bottom: 2rem;
+      margin-bottom: 1.5rem;
       text-align: center;
     }
     .footer-title {
       border-bottom: none;
-      font-size: 1.2rem;
+      font-size: 1rem;
       display: block;
+      margin-bottom: 1rem;
+    }
+    .footer-title:after {
+      left: 50%;
+      transform: translateX(-50%);
     }
     .footer-col ul {
       padding: 0;
       list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
     }
     .footer-col ul li {
-      margin-bottom: 0.5rem;
+      margin-bottom: 0;
+    }
+    .footer-link {
+      font-size: 0.9rem;
+      padding: 0 !important;
+    }
+    .footer-link:before {
+      display: none;
     }
     .contact-info {
       margin: 0 auto 1rem;
@@ -742,8 +785,18 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 </script>
 
-
-
+<!-- Auto-dismiss success messages after 5 seconds -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const successAlerts = document.querySelectorAll('.alert-success');
+    successAlerts.forEach(function(alert) {
+      setTimeout(function() {
+        const bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+      }, 5000); // 5000 milliseconds = 5 seconds
+    });
+  });
+</script>
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
