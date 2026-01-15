@@ -63,7 +63,7 @@
     </div>
     
     <h2 class="processing-text">Processing Payment</h2>
-    <p style="text-align: center; color: #999; font-size: 14px;">Please wait, redirecting to payment gateway...</p>
+    <p style="text-align: center; color: #999; font-size: 14px;">Please wait, loading payment gateway...</p>
     
     <div class="order-details">
         <div class="detail-row">
@@ -84,43 +84,52 @@
         </div>
     </div>
 
-    <!-- Hidden form for POST submission -->
-    <!-- For v2 API, the redirect happens via JavaScript -->
-    <form id="cashfreeForm" method="GET" action="https://sandbox.cashfree.com/pg" style="display: none;">
-        <input type="hidden" name="sessionId" value="{{ cftoken }}">
-    </form>
-
-    <!-- Fallback button for manual submission -->
+    <!-- Fallback button -->
     <div style="margin-top: 20px;">
-        <p style="text-align: center; color: #999; font-size: 12px; margin-bottom: 10px;">If payment doesn't redirect automatically:</p>
+        <p style="text-align: center; color: #999; font-size: 12px; margin-bottom: 10px;">If payment doesn't load automatically:</p>
         <button id="submitBtn" class="btn btn-warning btn-lg w-100 fw-bold rounded-3">Click Here to Pay</button>
     </div>
 </div>
 
+<!-- Cashfree JavaScript SDK -->
+<script src="https://sdk.cashfree.com/js/ui/2.0.0/cashfree.prod.js"></script>
 <script>
+    const sessionId = '{{ cftoken }}';
+    
     document.addEventListener('DOMContentLoaded', function() {
-        // Auto-redirect after 1 second using v2 API format
-        setTimeout(function() {
+        // Initialize Cashfree Checkout
+        function initiateCashfreeCheckout() {
             try {
-                // v2 API uses query parameter: ?sessionId=<payment_session_id>
-                const sessionId = '{{ cftoken }}';
-                window.location.href = `https://sandbox.cashfree.com/pg?sessionId=${sessionId}`;
-            } catch (e) {
-                console.error('Error redirecting:', e);
-                alert('Error redirecting to payment gateway. Please click the button below.');
+                if (typeof Cashfree === 'undefined') {
+                    console.error('Cashfree SDK not loaded');
+                    document.getElementById('submitBtn').textContent = 'Load Payment Gateway';
+                    return;
+                }
+                
+                const checkoutOptions = {
+                    paymentSessionId: sessionId,
+                    redirectTarget: '_self'  // Redirect in same window
+                };
+                
+                Cashfree.checkout(checkoutOptions)
+                    .then(function(result) {
+                        // Payment flow completed or closed
+                        console.log('Cashfree result:', result);
+                    })
+                    .catch(function(error) {
+                        console.error('Cashfree error:', error);
+                        alert('Payment gateway error. Please try again.');
+                    });
+            } catch (error) {
+                console.error('Error initializing checkout:', error);
             }
-        }, 1000);
-    });
-
-    // Fallback button click handler
-    document.getElementById('submitBtn').addEventListener('click', function() {
-        try {
-            const sessionId = '{{ cftoken }}';
-            window.location.href = `https://sandbox.cashfree.com/pg?sessionId=${sessionId}`;
-        } catch (e) {
-            console.error('Error redirecting:', e);
-            alert('Error: Unable to redirect to payment gateway. Please try again.');
         }
+        
+        // Auto-initiate after 1 second
+        setTimeout(initiateCashfreeCheckout, 1000);
+        
+        // Fallback button
+        document.getElementById('submitBtn').addEventListener('click', initiateCashfreeCheckout);
     });
 </script>
 </body>
