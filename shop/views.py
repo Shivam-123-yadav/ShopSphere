@@ -242,49 +242,61 @@ def cashfree_payment(request, order_id):
     # Generate cftoken from Cashfree API
     try:
         order_amount = float(payment.amount)
+        
+        # NEW v2 API Payload Format
         payload = {
-            "orderId": str(order.id),
-            "orderAmount": "{0:.2f}".format(order_amount),
-            "orderCurrency": "INR"
+            "order_id": str(order.id),
+            "order_amount": order_amount,
+            "order_currency": "INR",
+            "customer_details": {
+                "customer_id": str(request.user.id),
+                "customer_name": order.full_name,
+                "customer_email": order.email,
+                "customer_phone": getattr(request.user, 'phone', '9999999999') or '9999999999'
+            }
         }
         
+        # NEW v2 API Headers with x-client-id and x-client-secret
         headers = {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "x-api-version": settings.CASHFREE_API_VERSION,
+            "x-client-id": settings.CASHFREE_APP_ID,
+            "x-client-secret": settings.CASHFREE_SECRET_KEY
         }
-        
-        # Use Basic Auth with app_id:secret_key
-        auth = (settings.CASHFREE_APP_ID, settings.CASHFREE_SECRET_KEY)
         
         response = requests.post(
             settings.CASHFREE_API_URL,
             json=payload,
             headers=headers,
-            auth=auth,
             timeout=10
         )
         
         print(f"Cashfree API Response: {response.status_code} - {response.text}")
         
+        data = response.json()
+        
         if response.status_code == 200:
-            data = response.json()
-            if data.get('status') == 'OK' and 'cftoken' in data:
-                cftoken = data['cftoken']
+            # v2 API returns payment_session_id (new format) or order_token
+            cftoken = data.get('payment_session_id') or data.get('order_token') or data.get('cftoken')
+            
+            if cftoken:
                 # Save token to Payment record
                 payment.cftoken = cftoken
                 payment.save()
                 
-                print(f"Token generated successfully: {cftoken[:20]}...")
+                print(f"Token generated successfully: {cftoken[:30]}...")
                 
                 # Redirect to checkout page with token
                 return redirect('cashfree_checkout', order_id=order.id)
             else:
-                error_msg = data.get('message', 'Failed to generate token')
-                print(f"Cashfree error: {error_msg}")
+                error_msg = "Failed to generate payment session"
+                print(f"Cashfree error: No token/session in response")
+                print(f"Response keys: {list(data.keys())}")
                 messages.error(request, f"Payment Error: {error_msg}")
-                return render(request, "payment_error.html", {"error": error_msg})
+                return render(request, "payment_error.html", {"error": error_msg, "response": str(data)[:200]})
         else:
-            error_msg = f"API Error: {response.status_code}"
-            print(f"Cashfree API Error: {response.text}")
+            error_msg = data.get('message', f'API Error: {response.status_code}')
+            print(f"Cashfree API Error: {error_msg}")
             messages.error(request, error_msg)
             return render(request, "payment_error.html", {"error": error_msg})
             
