@@ -7,3 +7,5 @@ pillow
 pymysql
 djangorestframework
 djangorestframework-simplejwt
+
+requests
