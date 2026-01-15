@@ -317,7 +317,7 @@ def cashfree_payment(request, order_id):
         return redirect("checkout")
 
 
-@login_required
+@login_required(login_url='login')
 def cashfree_checkout(request, order_id):
     """
     Redirects user to Cashfree checkout with proper token
@@ -326,8 +326,11 @@ def cashfree_checkout(request, order_id):
         order = Order.objects.get(id=order_id, user=request.user)
         payment = order.payment
     except Order.DoesNotExist:
-        return render(request, "payment_error.html", {"error": "Order not found."})
+        messages.error(request, "Order not found or doesn't belong to you.")
+        return redirect("checkout")
     except Payment.DoesNotExist:
+        messages.error(request, "Payment record not found.")
+        return redirect("checkout")
         return render(request, "payment_error.html", {"error": "Payment record not found."})
 
     if not payment.cftoken:
