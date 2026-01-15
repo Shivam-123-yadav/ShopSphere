@@ -140,7 +140,7 @@ from .forms import CheckoutForm
 from .cart import Cart
 from django.contrib.auth.decorators import login_required
 
-@login_required
+# @login_required
 def checkout_view(request):
     cart = Cart(request)
     if not cart.items():
@@ -161,6 +161,7 @@ def checkout_view(request):
                     price=item["product"].price
                 )
             cart.clear()
+            messages.success(request, f"✅ Product purchase successful! Order ID: #{order.id}")
             return render(request, "checkout_success.html", {"order": order})
     else:
         form = CheckoutForm()
