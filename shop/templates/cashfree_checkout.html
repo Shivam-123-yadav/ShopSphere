@@ -85,17 +85,9 @@
     </div>
 
     <!-- Hidden form for POST submission -->
-    <form id="cashfreeForm" method="POST" action="https://test.cashfree.com/checkout/post/" style="display: none;">
-        <input type="hidden" name="appId" value="{{ cashfree_app_id }}">
-        <input type="hidden" name="orderId" value="{{ order_id }}">
-        <input type="hidden" name="orderAmount" value="{{ order_amount }}">
-        <input type="hidden" name="orderCurrency" value="INR">
-        <input type="hidden" name="customerName" value="{{ customer_name }}">
-        <input type="hidden" name="customerEmail" value="{{ customer_email }}">
-        <input type="hidden" name="customerPhone" value="{{ customer_phone }}">
-        <input type="hidden" name="notifyUrl" value="https://{{ request.get_host }}/cashfree/payment-success/">
-        <input type="hidden" name="returnUrl" value="https://{{ request.get_host }}/cashfree/payment-success/">
-        <input type="hidden" name="cftoken" value="{{ cftoken }}">
+    <!-- For v2 API, the redirect happens via JavaScript -->
+    <form id="cashfreeForm" method="GET" action="https://sandbox.cashfree.com/pg" style="display: none;">
+        <input type="hidden" name="sessionId" value="{{ cftoken }}">
     </form>
 
     <!-- Fallback button for manual submission -->
@@ -107,12 +99,14 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Auto-submit form after 1 second
+        // Auto-redirect after 1 second using v2 API format
         setTimeout(function() {
             try {
-                document.getElementById('cashfreeForm').submit();
+                // v2 API uses query parameter: ?sessionId=<payment_session_id>
+                const sessionId = '{{ cftoken }}';
+                window.location.href = `https://sandbox.cashfree.com/pg?sessionId=${sessionId}`;
             } catch (e) {
-                console.error('Error submitting form:', e);
+                console.error('Error redirecting:', e);
                 alert('Error redirecting to payment gateway. Please click the button below.');
             }
         }, 1000);
@@ -121,9 +115,10 @@
     // Fallback button click handler
     document.getElementById('submitBtn').addEventListener('click', function() {
         try {
-            document.getElementById('cashfreeForm').submit();
+            const sessionId = '{{ cftoken }}';
+            window.location.href = `https://sandbox.cashfree.com/pg?sessionId=${sessionId}`;
         } catch (e) {
-            console.error('Error submitting form:', e);
+            console.error('Error redirecting:', e);
             alert('Error: Unable to redirect to payment gateway. Please try again.');
         }
     });
