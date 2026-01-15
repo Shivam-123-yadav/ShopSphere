@@ -13,9 +13,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 
 import os
-import pymysql
-
-pymysql.install_as_MySQLdb()
+# import pymysql
+# pymysql.install_as_MySQLdb()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,6 +57,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
+
 ROOT_URLCONF = 'ecommerce.urls'
 
 TEMPLATES = [
@@ -91,7 +92,9 @@ WSGI_APPLICATION = 'ecommerce.wsgi.application'
 CASHFREE_APP_ID = "19423607542b8c55929afa131e632491"
 CASHFREE_SECRET_KEY = "f3556d6285d094eae4722ad1f8ea4490f2b81d83"
 CASHFREE_SANDBOX = True  # False for production
-CASHFREE_API_URL = "https://test.cashfree.com/api/v2/cftoken/order"
+# NEW v2 Endpoint - Tested and working
+CASHFREE_API_URL = "https://sandbox.cashfree.com/pg/orders"
+CASHFREE_API_VERSION = "2022-09-01"
 
 
 
@@ -156,7 +159,6 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
-
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
@@ -164,4 +166,3 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
